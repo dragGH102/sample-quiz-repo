@@ -1,28 +1,32 @@
 import React, { useState } from 'react';
 
 import { Question } from './components/Question';
-import { QuestionType } from './types';
 
 import './App.css';
 
 import { questions } from './data';
 
 const App = () => {
-  const [ result, setResult ] = useState(null);
+
+  const answersToQuestions = questions.map((question) => ({questionId: question.id, answerId: null, isCorrect: false }));
+
+  const [ result, setResult ] = useState(answersToQuestions);
 
   console.log('App-render');
 
+
+  const questionsComponents = questions.map(question =>
+     <Question
+         key={ `question-${ question.id }` }
+         setResult={ setResult }
+         { ...question }
+    />
+  );
+
   return (
     <div className="App">
-      { questions.map(question => <Question
-        key={ `question-${ question.id }` }
-        setResult={ setResult }
-        { ...question }
-      />) }
-
-      { result && <div>
-        Result: { result }
-      </div> }
+      { questionsComponents }
+      <div>You scored  {result.filter(value => value.isCorrect).length}/{questions.length} correct answers</div>
     </div>
   );
 }

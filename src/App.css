@@ -15,3 +15,7 @@
 .answers {
   border: 2px solid blue;
 }
+
+.answers > div{
+  cursor: pointer;
+}
