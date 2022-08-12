@@ -8,7 +8,7 @@ import { questions } from './data';
 
 const App = () => {
 
-  const answersToQuestions = questions.map((question) => ({questionId: question.id, answerId: null, isCorrect: false }));
+  const answersToQuestions = questions.map((question) => ({questionId: question.id, answerId: null, isCorrect: null }));
 
   const [ result, setResult ] = useState(answersToQuestions);
 
@@ -18,6 +18,7 @@ const App = () => {
   const questionsComponents = questions.map(question =>
      <Question
          key={ `question-${ question.id }` }
+         result={ result }
          setResult={ setResult }
          { ...question }
     />

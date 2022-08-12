@@ -5,7 +5,18 @@
 }
 
 .question {
+  display: flex;
   border: 2px solid red;
+  margin-top: 20px;
+}
+
+.question-image{
+  padding: 10px;
+}
+
+.question-body{
+  flex: 1;
+  padding: 10px;
 }
 
 .question .label {
