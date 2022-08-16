@@ -22,6 +22,12 @@ app.get('/questions', (req, res) => {
   res.json(questions)
 });
 
+app.get('/userData', (req, res) => {
+  res.json({
+    username: 'x'
+  });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

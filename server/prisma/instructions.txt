@@ -1,0 +1,23 @@
+Level 1
+Set up Prisma based on this example: 
+
+https://github.com/prisma/prisma-examples/tree/latest/javascript/rest-express
+
+As help, there is also the getting start tutorial: https://www.prisma.io/docs/getting-started/quickstart
+
+Level 2
+Create the questions in the database ( npx prisma studio )
+
+Level 3
+Query the questions from the database when the route /questions is called.
+
+https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#get-all-user-records-where-the-name-is-alice
+
+Level 4
+Create a results table which logs the result of every user (a POST call with fetch() will be necessary to send the data from the frontend)
+
+Express: app.post(....) -> req.body
+React: fetch('....', { 
+    body: TODO
+    method: 'POST'
+})
