@@ -1,9 +1,8 @@
-import { questions } from "../data";
+import { QuestionType } from "../types";
 
 export const selectAnswer = (id: number, questionId: number, setResult: Function) => {
-    
+    // todo #later: replace this with a reducer
     setResult((prevResult: any[]) => {
-
        if(prevResult.find(res => res.answerId === id)) return prevResult;
        
        let result;
@@ -12,9 +11,13 @@ export const selectAnswer = (id: number, questionId: number, setResult: Function
        result = [...result, {questionId: questionId, answerId: id, isCorrect: null}]
 
        return result;      
-    })
+    });
 }
-export const verifyAnswers = (setResult: Function, setEndGame: Function) => {
+export const verifyAnswers = (
+    questions: QuestionType[],
+    setResult: Function,
+    setEndGame: Function
+) => {
     setResult((prevResult: any[]) => {
         return prevResult.map((value) => {
             const question = questions.find(question => question.id === value.questionId);

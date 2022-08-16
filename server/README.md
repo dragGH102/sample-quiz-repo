@@ -1,0 +1,1 @@
+How to: cd server && yarn && node index.js

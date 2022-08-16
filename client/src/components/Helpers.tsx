@@ -1,12 +1,11 @@
-import { useState } from "react"
+import { useState } from "react";
 
-import { questions } from "../data";
+import { QuestionType } from "../types";
 
-type HerlperArgs = {
-    setResult: Function
-};
-
-export const Helpers = ({ setResult }: HerlperArgs) => {
+export const Helpers = ({ questions, setResult }: {
+    questions: QuestionType[];
+    setResult: Function;
+}) => {
     const [activeOperation, setActiveOperation] = useState(false);
     const [inputValue, setInputValue] = useState(1);
 

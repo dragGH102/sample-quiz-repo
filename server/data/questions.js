@@ -1,6 +1,4 @@
-import { QuestionType } from "./types";
-
-export const questions: QuestionType[] = [
+exports.questions = [
     { 
       label: 'whatever?',
       id: 1,

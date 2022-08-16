@@ -1,4 +1,9 @@
-# Getting Started with Create React App
+
+# New README
+
+How to: cd client && yarn && yarn run start
+
+# [original README] Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
