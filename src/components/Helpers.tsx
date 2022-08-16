@@ -1,17 +1,22 @@
-
 import { useState } from "react"
+
 import { questions } from "../data";
 
-export const Helpers = ({ setResult}: any & {setResult: Function}) => {
+type HerlperArgs = {
+    setResult: Function
+};
 
+export const Helpers = ({ setResult }: HerlperArgs) => {
     const [activeOperation, setActiveOperation] = useState(false);
     const [inputValue, setInputValue] = useState(1);
 
     const confirmOperation = () => {
-        //find the question with id equal to inputValue
+        // find the question with id equal to inputValue
         const question = questions.find(question => question.id === Number(inputValue));
+        
         if(!question) return;
-        //find not correct answers
+        
+        // find not correct answers
         if(question.answers.length > 2){
             const numberOfAnswersToRemove = Math.floor(question.answers.length / 2);
             let count = 0;
@@ -24,7 +29,6 @@ export const Helpers = ({ setResult}: any & {setResult: Function}) => {
                 }
             }
 
-            
             const removedAnswers = question.answers.filter(q => q.remove);
 
             setResult((prevResult: any[]) => {

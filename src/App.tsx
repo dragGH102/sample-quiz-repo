@@ -17,6 +17,7 @@ const App = () => {
   console.log('App-render');
   console.log(result);
 
+  questions.forEach(q => console.log('qqqqq', `question-${ q.id }`));
 
   const questionsComponents = questions.map(question =>
      <Question
@@ -31,7 +32,7 @@ const App = () => {
   const handleOperation = () => {
      if(!endGame){
         verifyAnswers(setResult, setEndGame);
-     }else{
+     } else {
         setResult([]);
         setEndGame(false);
      }
