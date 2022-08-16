@@ -1,30 +1,41 @@
 import { QuestionType } from "../types";
-import { verifyAnswer } from "../utils/verify-answer";
+import { selectAnswer } from "../utils/verify-answer";
 
 export const Question = ({
-    id: questionId, label, imageUrl, answers, result, setResult 
-   }: QuestionType & {result: any[]} & { setResult: Function }) => {
+    id: questionId, label, imageUrl, answers, result, setResult, endGame
+   }: QuestionType & {result: any[]} & { setResult: Function } & { endGame: boolean })  => {
    console.log('Question-render');
 
-   const question = result.find(res => res.questionId === questionId);
+   const answerToQuestion = result.find(res => res.questionId === questionId);
+
+   function getButtonClass(id: number, correct: any){
+      let buttonClass = "answer-btn " + (endGame ? (correct ? "correct-asw": "wrong-asw"): '');
+      if(answerToQuestion?.answerId === id){
+         buttonClass += " selected";
+      }
+      return buttonClass;
+   }
  
    return (
      <div className="question">
+       <div style={{paddingTop: 10, paddingLeft: 10}}>
+          #{questionId}
+       </div>
        <div className="question-image">
           <img src={imageUrl} alt={imageUrl} />
        </div>
        <div className="question-body">
           <div className="label">{ label }</div>
           <div className="answers">
-             { answers.map(({ label, id }) => 
+             { answers.map(({ label, id, correct }) => 
                    <div>
-                      <div key={ `answer-${ id }` } onClick={() => verifyAnswer(id, questionId, setResult)}>{ label }</div>
+                      <button type="button" className={getButtonClass(id, correct)} key={ `answer-${ id }` } onClick={() => selectAnswer(id, questionId, setResult)} disabled={endGame}>{ label }</button>
                    </div>
                          )
              } 
           </div>
           {
-             (!!question && question.isCorrect !== null) &&  <div>Result: {question.isCorrect ? "Correct" : "Incorrect"}</div>
+             (!!answerToQuestion && answerToQuestion.isCorrect !== null) &&  <div>Result: {answerToQuestion.isCorrect ? "Correct" : "Incorrect"}</div>
           }
        </div>
      </div>

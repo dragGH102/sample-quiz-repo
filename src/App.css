@@ -24,9 +24,71 @@
 }
 
 .answers {
-  border: 2px solid blue;
+  /*border: 2px solid blue;*/
+  display: flex;
+  margin-top: 10px;
 }
 
-.answers > div{
+.answer-btn{
+  border: 1px solid #4D5B9E;
+  border-radius: 8px;
+  width: 66px;
+  height: 22px;
+  display: block;
+  font-size: 12px;
+  color: #293264;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.answer-btn.correct-asw{
+  background-color: lightgreen !important;
+}
+
+.answer-btn.wrong-asw{
+  background-color: red !important;
+}
+
+.answer-btn.selected{
+  border: 3px solid yellow;
+  background-color: #D6DBF5;
+  color: #293264;
+}
+
+.verify-answers-btn{
+  width: 120px;
+  height: 35px;
+  background-color: #4D5B9E;
+  color: #F5F7FB;
+  font-size: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-left: 20px;
+}
+
+.verify-answers-btn:disabled{
+  background-color: gray;
+  cursor: none;
+}
+
+.quiz-result{
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.helper-btn{
+  cursor: pointer;
+  background-color: blue;
+  color: yellow;
+  border-radius: 50%;
+  width: 50px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.confirm-btn{
+  margin-left: 10px;
   cursor: pointer;
 }

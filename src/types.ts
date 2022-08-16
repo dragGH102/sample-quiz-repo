@@ -4,6 +4,7 @@ export type QuestionType = {
     imageUrl: string;
 
     answers: Array<{
+        remove?: boolean;
         correct?: boolean;
         label: string;
         id: number;
