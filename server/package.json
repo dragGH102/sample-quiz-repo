@@ -4,19 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "run-local-db": "docker compose -f ./docker-local.yml up",
-    "stop-local-db": "docker-compose -f ./docker-loca.yml down"
-
-    
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.1"
-  },
-  "devDependencies": {
-    "prisma": "^4.2.1"
   }
 }
