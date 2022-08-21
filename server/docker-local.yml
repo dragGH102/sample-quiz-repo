@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:8.0.22
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'quiz'
+      MYSQL_USER: 'root'
+      MYSQL_ROOT_PASSWORD: '0987654321'
+    ports:
+      - '1234:3308'
+    expose:
+      - '1234'
+    volumes:
+      - my-db:/var/lib/mysql
+volumes:
+  my-db:

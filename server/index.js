@@ -14,6 +14,13 @@ app.use(cors());
 /*
  * Init routes
  */
+app.all('*', (req, res) => {
+  res.status(404).send({
+    msg: "Error 404",
+    result: false
+  })
+})
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
