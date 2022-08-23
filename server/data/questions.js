@@ -2,7 +2,6 @@ exports.questions = [
     { 
       label: 'whatever?',
       id: 1,
-      imageUrl: "https://picsum.photos/id/237/100",
       answers: [
         {
           id: 2,
@@ -22,7 +21,6 @@ exports.questions = [
     { 
       label: 'whatever2?',
       id: 2,
-      imageUrl: "https://picsum.photos/id/500/100",
       answers: [
         { 
           id: 6,
@@ -38,7 +36,6 @@ exports.questions = [
     { 
       label: 'whatever3?',
       id: 3,
-      imageUrl: "https://picsum.photos/id/525/100",
       answers: [
         { 
           id: 9,
