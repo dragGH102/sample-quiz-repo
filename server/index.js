@@ -40,6 +40,12 @@ app.post('/add/user', async (req, res) => {
   }
 }) 
 
+app.get('/user/mock', async (req, res) => {
+    // todo get user by id
+    const user = await prisma.user.findFirst();
+    res.json(user)
+})
+
 app.post('/add/question', async (req, res) => {
   const { label } = req.body
   const Question = await prisma.question.create({
@@ -89,17 +95,19 @@ app.post('/add/answers', async (req, res) => {
 /*
  * Get routes
  */
-app.get('/', async (req, res) => {
+app.get('/questionsWithAnswers', async (req, res) => {
   const Question = await prisma.question.findMany({
     include: { answers: true }
-  })
-  res.json(Question)
-  console.log(`All Questions with answers`, Question)
+  });
+  res.json(Question);
+  
+  console.log(`All Questions with answers`, Question);
 });
 
 app.get('/questions', async (req, res) => {
   const Question = await prisma.question.findMany({})
-  res.json(Question)
+  res.json(Question);
+
   console.log('All Questions: ', Question);
 })
 

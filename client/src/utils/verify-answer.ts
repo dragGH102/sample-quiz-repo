@@ -26,7 +26,10 @@ export const verifyAnswers = (
 
             const correct = answer?.id === value.answerId;
 
-            return {...value, isCorrect: correct};
+            return {
+                ...value,
+                isCorrect: correct
+            };
         })
     })
 

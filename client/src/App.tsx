@@ -28,6 +28,7 @@ const App = () => {
   const [ questions, setQuestions ] = useState([]);
   const [ userData, setUserData ] = useState({});
   const [ loaded, setLoaded ] = useState(false);
+  const [ error, setError ] = useState(null);
 
   console.log('App-render');
   console.log(result);
@@ -40,10 +41,10 @@ const App = () => {
    // Ideally use router to put this 'create question' as a separate page 
    // https://reactrouter.com/docs/en/v6/getting-started/tutorial
 
-   const url = 'http://127.0.0.1:3001/';
+   const baseUrl = 'http://127.0.0.1:3001';
 
    const fetchData = async (route: string) => {
-      const res = await fetch(`${url}${route}`);
+      const res = await fetch(`${ baseUrl }/${ route }`);
 
       const resJson = await res.json();
 
@@ -52,27 +53,27 @@ const App = () => {
 
    const getQuestions = async () => {
       try {
-         const data = await fetchData('questions');
+         const data = await fetchData('questionsWithAnswers');
 
          setQuestions(data);
 
-         return 'done';
+         return true;
       }
       catch(e) {
-         console.log(e);
+         return false;
       }
    };
 
    const getUserData = async () => {
       // todo task 1: complete this
-      try{
-         const data = await fetchData('userData');
+      try {
+         const data = await fetchData('user/mock');
 
          setUserData(data);
 
-         return 'done';
-      }catch(e) {
-         console.log(e);
+         return true;
+      } catch(e) {
+         return false;
       }
 
       // todo (when app is more complex) task 3(together with task 4@components/UserData.ts): aside of setUserData, store the user data in the AppReducer
@@ -82,26 +83,28 @@ const App = () => {
    };
 
    const getAllData = async () => {
-      const questions = await getQuestions();
-      const userData = await getUserData();
+      try {
+         const questions = await getQuestions();
+         if (!questions) return setError('failed getting questions');
+         
+         const userData = await getUserData();
+         if (!userData) return setError('failed getting user data');
 
-      return questions === 'done' && userData === 'done' ? 'done': new Error("Errore nel recupero dei dati");
+         setLoaded(true);
+      }
+      catch(e) {
+        throw new Error(`Errore getting data. Error: ${ e }`);
+      }
    }
 
    getAllData()
-      .then(() => setLoaded(true))
-      .catch((e) => console.log(e))
-
-      // todo task 2: set loaded when both user data and questions and fetched
-      // TIP:
-      // - create async getAllData()
-      // - call getQuestions and getUserData with await from within
-      // - finally set loaded true
   }, []);
 
   
 
   const handleOperation = () => {
+     setError(null);
+
      if(!endGame){
         verifyAnswers(questions, setResult, setEndGame);
      } else {
@@ -136,6 +139,8 @@ const App = () => {
       </div>
       
       <div>State: { loaded ? 'loaded' : 'not loaded' } [todo replace this with a spinner] </div>
+
+      { error && <div>{ error }</div> }
     </div>
   );
 }
