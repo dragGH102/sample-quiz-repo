@@ -26,6 +26,7 @@ const App = () => {
   const [ result, setResult ] = useState([]);
   const [ endGame, setEndGame ] = useState(false);
   const [ questions, setQuestions ] = useState([]);
+  const [ userData, setUserData ] = useState({});
   const [ loaded, setLoaded ] = useState(false);
 
   console.log('App-render');
@@ -39,12 +40,21 @@ const App = () => {
    // Ideally use router to put this 'create question' as a separate page 
    // https://reactrouter.com/docs/en/v6/getting-started/tutorial
 
+   const url = 'http://127.0.0.1:3001/';
+
+   const fetchData = async (route: string) => {
+      const res = await fetch(`${url}${route}`);
+
+      const resJson = await res.json();
+
+      return resJson;
+   }
+
    const getQuestions = async () => {
       try {
-         const res = await fetch('http://127.0.0.1:3001/questions');
-         const resJson = await res.json();
+         const data = await fetchData('questions');
 
-         setQuestions(resJson);
+         setQuestions(data);
 
          return 'done';
       }
@@ -55,6 +65,15 @@ const App = () => {
 
    const getUserData = async () => {
       // todo task 1: complete this
+      try{
+         const data = await fetchData('userData');
+
+         setUserData(data);
+
+         return 'done';
+      }catch(e) {
+         console.log(e);
+      }
 
       // todo (when app is more complex) task 3(together with task 4@components/UserData.ts): aside of setUserData, store the user data in the AppReducer
       // TIP: dispatch(setUserData)
@@ -62,8 +81,16 @@ const App = () => {
       // userData: a property of the INITIAL state of the reducer (which will initially = null)
    };
 
-   getQuestions()
-      .then(() => setLoaded(true));
+   const getAllData = async () => {
+      const questions = await getQuestions();
+      const userData = await getUserData();
+
+      return questions === 'done' && userData === 'done' ? 'done': new Error("Errore nel recupero dei dati");
+   }
+
+   getAllData()
+      .then(() => setLoaded(true))
+      .catch((e) => console.log(e))
 
       // todo task 2: set loaded when both user data and questions and fetched
       // TIP:
@@ -71,6 +98,8 @@ const App = () => {
       // - call getQuestions and getUserData with await from within
       // - finally set loaded true
   }, []);
+
+  
 
   const handleOperation = () => {
      if(!endGame){
