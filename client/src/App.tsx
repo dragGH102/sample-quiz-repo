@@ -32,6 +32,13 @@ const App = () => {
   console.log(result);
 
   useEffect(() => {
+   // todo use this component structure to CREATE a question with multiple answers provided via inputs
+   // (no need for an effect)
+   // - set state of each input on chage
+   // - use the states on form submit
+   // Ideally use router to put this 'create question' as a separate page 
+   // https://reactrouter.com/docs/en/v6/getting-started/tutorial
+
    const getQuestions = async () => {
       try {
          const res = await fetch('http://127.0.0.1:3001/questions');
@@ -49,7 +56,7 @@ const App = () => {
    const getUserData = async () => {
       // todo task 1: complete this
 
-      // todo task 3(together with task 4@components/UserData.ts): aside of setUserData, store the user data in the AppReducer
+      // todo (when app is more complex) task 3(together with task 4@components/UserData.ts): aside of setUserData, store the user data in the AppReducer
       // TIP: dispatch(setUserData)
       // setUserData is the action
       // userData: a property of the INITIAL state of the reducer (which will initially = null)
@@ -77,6 +84,8 @@ const App = () => {
   return (
     <div className="App">
       {/* <UserData /> */}
+
+      { /* TODO here 'add question' component */ }
       
       <Helpers
          questions={ questions} 

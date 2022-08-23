@@ -17,9 +17,15 @@ model Question {
 }
 
 model Answer {
-  id              Int        @id @default(autoincrement())
-  label           String  
+  id             Int        @id @default(autoincrement())
+  label          String  
   status         Boolean    @default(false)
   questions      Question?  @relation(fields: [question_id], references: [id])
-  question_id     Int? 
+  question_id    Int? 
+}
+
+model User {
+  id             Int        @id @default(autoincrement())
+  username       String     @unique
+  password       String
 }

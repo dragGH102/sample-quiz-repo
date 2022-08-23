@@ -9,7 +9,7 @@ services:
       MYSQL_USER: 'root'
       MYSQL_ROOT_PASSWORD: '0987654321'
     ports:
-      - '3306:3306'
+      - '3312:3306'
     volumes:
       - quiz:/var/lib/mysql
 volumes:

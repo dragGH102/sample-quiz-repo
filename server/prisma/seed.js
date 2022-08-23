@@ -4,31 +4,25 @@ const prisma = new PrismaClient();
 
 
 async function main() {
-    const newQuestion = await prisma.question.create({
-        data: 
-            {
-                label: "Which one is not a crypto currency?",
-                answers: {
-                  create: [
-                    {
-                      label: "Bitcoin",
-                      
-                    },
-                    {
-                      label: "USDT",
-                    },
-                    {
-                      label: "USD",
-                      status: true
-                    },
-                    {
-                      label: "None of the above.",
-                    }
-                  ]
+    const sampleQuestion = await prisma.question.create({
+        data: {
+            label: "Which one is not a crypto currency?",
+            answers: {
+              create: [
+                { label: "Bitcoin" },
+                { label: "USDT" },
+                {
+                    label: "USD",
+                    status: true
+                },
+                {
+                  label: "None of the above."
                 }
+              ]
             }
+        }
     })
-    console.log('Created New Questions: ', newQuestion);
+    console.log('Created New Questions: ', sampleQuestion);
 
     const allQuestions = await prisma.question.findMany({
         include: { answers: true}

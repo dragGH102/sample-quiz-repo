@@ -8,6 +8,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "server:start": "nodemon index.js",
+    "db:init": "prisma db push && prisma db seed",
     "run-local-db": "docker compose -f ./docker-local.yml up",
     "stop-local-db": "docker-compose -f ./docker-loca.yml down"
   },
