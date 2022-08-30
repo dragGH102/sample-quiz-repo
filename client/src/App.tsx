@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import { Question } from './components/Question';
+import AddQuestion from './components/AddQuestion';
 
 import './App.css';
 
@@ -26,9 +27,10 @@ const App = () => {
    const [result, setResult] = useState([]);
    const [endGame, setEndGame] = useState(false);
    const [questions, setQuestions] = useState([]);
+   const [answers, setAnswers] = useState([]);
    const [userData, setUserData] = useState({});
    const [loaded, setLoaded] = useState(false);
-   const [error, setError] = useState<string | null>(null);
+   const [error, setError] = useState(null);
 
    console.log('App-render');
 
@@ -41,6 +43,7 @@ const App = () => {
       // https://reactrouter.com/docs/en/v6/getting-started/tutorial
 
       const baseUrl = 'http://127.0.0.1:3001';
+
 
       const fetchData = async (route: string) => {
          const res = await fetch(`${baseUrl}/${route}`);
@@ -146,6 +149,11 @@ const App = () => {
          <div>State: {loaded ? 'loaded' : 'not loaded'} [todo replace this with a spinner] </div>
 
          {error && <div>{error}</div>}
+
+         <div>State: {loaded ? 'loaded' : 'not loaded'} [todo replace this with a spinner] </div>
+
+         {error && <div>{error}</div>}
+         <AddQuestion />
       </div>
    );
 }

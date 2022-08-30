@@ -5,7 +5,11 @@ const { PrismaClient } = require("@prisma/client");
 const { prismaFindUniqueQueryOrThrow } = require("./utils/prisma-query-or-throw.js");
 const { PrismaClientKnownRequestError } = require("@prisma/client/runtime/index.js");
 
+<<<<<<< HEAD
 const prisma = new PrismaClient();
+=======
+const prisma = new PrismaClient({log: ['query']})
+>>>>>>> 980ce4b (Adding Question)
 const app = express();
 const port = 3001;
 
