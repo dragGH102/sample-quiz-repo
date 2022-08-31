@@ -13,11 +13,11 @@ import { UserData } from './components/UserData';
 const QuestionList = ({ questions, result, setResult, endGame }) => questions.map((question: QuestionType) => (
    <div>
     <Question
+       { ...question }
        key={ `question-${ question.id }` }
        result={ result }
        setResult={ setResult }
        endGame={endGame}
-       { ...question }
     />
   </div> 
 ));
@@ -31,7 +31,6 @@ const App = () => {
   const [ error, setError ] = useState(null);
 
   console.log('App-render');
-  console.log(result);
 
   useEffect(() => {
    // todo use this component structure to CREATE a question with multiple answers provided via inputs
@@ -132,9 +131,15 @@ const App = () => {
       />
 
       <div className="quiz-result">
-         { endGame && <div>You scored  {result.filter((value: any) => value.isCorrect).length}/{questions.length} correct answers</div> }
+         { 
+            endGame && 
+              <div> 
+                 You scored {result.filter((value: any) => value.isCorrect).length}/{questions.length} 
+                 &nbsp;correct answers
+              </div> 
+         }
          <button type='button' className="verify-answers-btn" onClick={() => handleOperation()} disabled={result.length < questions.length}>
-          { endGame ? "Start new game": "Check answers"}
+            { endGame ? "Start new game": "Check answers"}
          </button>
       </div>
       
