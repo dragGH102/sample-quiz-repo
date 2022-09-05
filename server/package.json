@@ -11,7 +11,8 @@
     "server:start": "nodemon index.js",
     "db:init": "prisma db push && prisma db seed",
     "run-local-db": "docker compose -f ./docker-local.yml up",
-    "stop-local-db": "docker-compose -f ./docker-loca.yml down"
+    "stop-local-db": "docker-compose -f ./docker-loca.yml down",
+    "lint": "npx eslint index.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,5 +20,9 @@
     "@prisma/client": "^4.2.1",
     "cors": "^2.8.5",
     "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.23.0",
+    "prettier": "^2.7.1"
   }
 }
