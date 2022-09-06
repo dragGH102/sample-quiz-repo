@@ -121,17 +121,8 @@
                 "singleline": "never"
             }
         ],
-        "linebreak-style": [
-            true,
-            "LF"
-        ],
         "typedef": [
-            true,
-            "call-signature",
-            "parameter",
-            "arrow-call-signature",
-            "arrow-parameter",
-            "property-declaration"
+            false
         ],
         "no-consecutive-blank-lines": true
     },

@@ -12,7 +12,7 @@
     "db:init": "prisma db push && prisma db seed",
     "run-local-db": "docker compose -f ./docker-local.yml up",
     "stop-local-db": "docker-compose -f ./docker-loca.yml down",
-    "lint": "npx eslint index.js"
+    "lint": "eslint . --ext .js"
   },
   "author": "",
   "license": "ISC",

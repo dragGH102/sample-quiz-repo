@@ -10,7 +10,7 @@ import { QuestionType } from './types';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-const QuestionList = ({ questions, result, setResult, endGame }) => questions.map((question: QuestionType) => (
+const QuestionList = ({ questions, result, setResult, endGame }): any => questions.map((question: QuestionType) => (
    <div>
       <Question
          {...question}
