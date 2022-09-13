@@ -6,16 +6,13 @@ export default function AddQuestion() {
     const [question, setQuestion] = useState({
         label: ""
     });
-    const [answer, setAnswer] = useState({
 
-    })
-
-    const submit = async (e) => {
+    const submit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault()
         console.log("Submit been clicked")
         const data = { ...question }
         console.log("Data.....------", data)
-        const res = await fetch(url, {
+        fetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -30,12 +27,13 @@ export default function AddQuestion() {
                 console.error("Error", error)
             })
     }
-    const addQuestionHandler = (e) => {
+    const addQuestionHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newQuestion = { ...question }
         newQuestion[e.target.id] = e.target.value
         setQuestion(newQuestion)
         console.log("Added Question...", newQuestion)
     }
+
     return (
         <div>
             <div className='add-question'>
