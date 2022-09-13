@@ -22,6 +22,11 @@ const QuestionList = ({ questions, result, setResult, endGame }): any => questio
    </div>
 ));
 
+const credentials = {
+   username: '',
+   password: ''
+};
+
 const App = () => {
    const [result, setResult] = useState([]);
    const [endGame, setEndGame] = useState(false);
@@ -29,6 +34,8 @@ const App = () => {
    const [userData, setUserData] = useState({});
    const [loaded, setLoaded] = useState(false);
    const [error, setError] = useState<string | null>(null);
+   const [userLogged, setUserLogged] = useState(false);
+   const [loginData, setLoginData] = useState(credentials);
 
    console.log('App-render');
 
@@ -64,7 +71,6 @@ const App = () => {
       };
 
       const getUserData = async () => {
-         // todo task 1: complete this
          try {
             const data = await fetchData('user/mock');
 
@@ -112,36 +118,116 @@ const App = () => {
       }
    }
 
+   const updateLoginData = (event: { target: any; }) => {
+      const element = event.target;
+      setLoginData((prev) => (
+         { ...prev, [element.name]: element.value }
+      ));
+   }
+
+   const login = async (evt: React.FormEvent<HTMLFormElement>) => {
+
+      evt.preventDefault();
+
+      const options = {
+         method: 'POST',
+         headers: {
+            "Content-Type": "application/json"
+         },
+         body: JSON.stringify(loginData)
+      };
+
+      const response = await fetch(`http://127.0.0.1:3001/login`, options);
+
+      if (response.status === 401) {
+         return;
+      } else {
+         setUserLogged(true);
+      }
+   };
+
+   //For testing authentication
+   const testQuestions = async () => {
+      const questions = await fetch('http://127.0.0.1:3001/questionsWithAnswers');
+      console.log(await questions.json());
+   };
+
+   const logout = async () => {
+
+      const options = {
+         method: 'POST',
+         headers: {
+            "Content-Type": "application/json"
+         },
+         body: JSON.stringify(loginData)
+      };
+
+      const response = await fetch(`http://127.0.0.1:3001/logout`, options);
+
+      if (response.status === 401) {
+         return;
+      } else {
+         setUserLogged(false);
+      }
+
+   };
+
    return (
       <div className="App">
-         {/* <UserData /> */}
+         {
+            !userLogged &&
+            <div>
+               {
+                  /* TODO make a form with username and password */
+                  <form onSubmit={(e) => login(e)}>
+                     <input type="text" name="username" placeholder='username' value={loginData.username} onChange={updateLoginData} />
+                     <br />
+                     <br />
+                     <input type="password" name="password" placeholder='password' value={loginData.password} onChange={updateLoginData} />
+                     <br /><br />
+                     <button type="submit">Login</button>
+                  </form>
+               }
+            </div>
+         }
 
-         { /* TODO here 'add question' component */}
+         {
+            /* <UserData /> */
 
-         <Helpers
-            questions={questions}
-            setResult={setResult}
-         />
-
-         <QuestionList
-            questions={questions}
-            result={result}
-            setResult={setResult}
-            endGame={endGame}
-         />
-
-         <div className="quiz-result">
-            {
-               endGame &&
-               <div>
-                  You scored {result.filter((value: any) => value.isCorrect).length}/{questions.length}
-                  &nbsp;correct answers
+            /* TODO here 'add question' component */
+            userLogged &&
+            <div>
+               <div style={{ display: 'flex', width: '200px', justifyContent: 'space-between' }}>
+                  <Helpers
+                     questions={questions}
+                     setResult={setResult}
+                  />
+                  <button type="button" onClick={logout}>Logout</button>
+                  <button type="button" onClick={testQuestions}>Get Questions</button>
                </div>
-            }
-            <button type='button' className="verify-answers-btn" onClick={() => handleOperation()} disabled={result.length < questions.length}>
-               {endGame ? "Start new game" : "Check answers"}
-            </button>
-         </div>
+
+               <QuestionList
+                  questions={questions}
+                  result={result}
+                  setResult={setResult}
+                  endGame={endGame}
+               />
+
+               <div className="quiz-result">
+                  {
+                     endGame &&
+                     <div>
+                        You scored {result.filter((value: any) => value.isCorrect).length}/{questions.length}
+                        &nbsp;correct answers
+                     </div>
+                  }
+
+                  <button type='button' className="verify-answers-btn" onClick={() => handleOperation()} disabled={result.length < questions.length}>
+                     {endGame ? "Start new game" : "Check answers"}
+                  </button>
+               </div>
+            </div>
+         }
 
          <div>State: {loaded ? 'loaded' : 'not loaded'} [todo replace this with a spinner] </div>
 

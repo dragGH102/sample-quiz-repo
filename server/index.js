@@ -1,13 +1,17 @@
 const express = require("express");
 var cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 
 const { prismaFindUniqueQueryOrThrow } = require("./utils/prisma-query-or-throw.js");
 const { PrismaClientKnownRequestError } = require("@prisma/client/runtime/index.js");
 
+const {login, logout, jwtKey } = require("./handlers.js");
+
 const prisma = new PrismaClient();
 const app = express();
 const port = 3001;
+
 
 /*
  * Init middlewares
@@ -15,15 +19,44 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
+function auth(req, res, next){
+	const token = req?.cookies?.token;
+	console.log("Token is ",token);
+	if(!token){
+        return res.status(401).end();
+    }
+
+	try {
+		// Parse the JWT string and store the result in `payload`.
+		// Note that we are passing the key in this method as well. This method will throw an error
+		// if the token is invalid (if it has expired according to the expiry time we set on sign in),
+		// or if the signature does not match
+		jwt.verify(token, jwtKey);
+	} catch (e) {
+		if (e instanceof jwt.JsonWebTokenError) {
+			// if the error thrown is because the JWT is unauthorized, return a 401 error
+			return res.status(401).end();
+		}
+		// otherwise, return a bad request error
+		return res.status(400).end();
+	}
+
+	next();
+
+}
+
+
 /*
  * Init routes
  */
+
+app.post("/login", login);
+app.post("/logout", logout);
 
 /*
  * Post routes
  */
 app.post("/add/user", async (req, res) => {
-	const { username, password } = req.body;
 
 	try {
 		const user = await prisma.user.create({
@@ -41,8 +74,39 @@ app.post("/add/user", async (req, res) => {
 	}
 }); 
 
+app.get("/users", async(req,res) => {
+   const users = await prisma.user.findMany();
+   res.json(users);
+});
+
+app.get("/users/:id", async(req,res) => {
+	const { id } = req.params;
+	try{
+		const user = await prismaFindUniqueQueryOrThrow({
+			where: { id: Number(id) },
+		}, "user");
+
+		res.json(user);
+	}catch(e){
+		res.status(400).json("User not found!");
+	}
+ });
+
+ app.get("/users/:username", async(req,res) => {
+	const { username } = req.params;
+	try{
+		const user = await prismaFindUniqueQueryOrThrow({
+			where: { username: username },
+		}, "user");
+
+		res.json(user);
+	}catch(e){
+		res.status(400).json("User not found!");
+	}
+
+ });
+
 app.get("/user/mock", async (req, res) => {
-	// todo get user by id
 	const user = await prisma.user.findFirst();
 	res.json(user);
 });
@@ -165,6 +229,8 @@ app.delete("/question/:id", async (req, res) => {
 		}
 	}
 });
+
+app.use(auth);
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}`);

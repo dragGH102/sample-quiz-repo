@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
@@ -21,14 +21,16 @@ async function main() {
               ]
             }
         }
-    })
-    console.log('Created New Questions: ', sampleQuestion);
+    });
+    console.log("Created New Questions: ", sampleQuestion);
 
     const allQuestions = await prisma.question.findMany({
         include: { answers: true}
-    })
-    console.log('All Questions: ')
-    console.dir(allQuestions, { depth: null })
+    });
+
+    console.log("All Questions: ");
+
+    console.dir(allQuestions, { depth: null });
 
 
     // console.log('Star seeding .... ... ')
@@ -43,10 +45,10 @@ async function main() {
 }
 main()
   .then(async () => {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
