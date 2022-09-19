@@ -137,7 +137,7 @@ const App = () => {
          body: JSON.stringify(loginData)
       };
 
-      const response = await fetch(`http://127.0.0.1:3001/login`, options);
+      const response = await fetch(`/login`, options);
 
       if (response.status === 401) {
          return;
@@ -148,8 +148,20 @@ const App = () => {
 
    //For testing authentication
    const testQuestions = async () => {
-      const questions = await fetch('http://127.0.0.1:3001/questionsWithAnswers');
+      const questions = await fetch('http://localhost:3001/questionsWithAnswers');
       console.log(await questions.json());
+   };
+
+   const refreshToken = async () => {
+      const options = {
+         method: 'POST',
+         headers: {
+            "Content-Type": "application/json"
+         },
+      } as unknown as RequestInit;
+
+      const refresh = await fetch('/refresh', options);
+      await refresh.json();
    };
 
    const logout = async () => {
@@ -162,7 +174,7 @@ const App = () => {
          body: JSON.stringify(loginData)
       };
 
-      const response = await fetch(`http://127.0.0.1:3001/logout`, options);
+      const response = await fetch(`/logout`, options);
 
       if (response.status === 401) {
          return;
@@ -204,6 +216,7 @@ const App = () => {
                   />
                   <button type="button" onClick={logout}>Logout</button>
                   <button type="button" onClick={testQuestions}>Get Questions</button>
+                  <button type="button" onClick={refreshToken}>Refresh token</button>
                </div>
 
                <QuestionList

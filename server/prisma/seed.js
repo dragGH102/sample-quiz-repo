@@ -1,4 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
@@ -6,29 +6,29 @@ const prisma = new PrismaClient();
 async function main() {
     const sampleQuestion = await prisma.question.create({
         data: {
-            label: "Which one is not a crypto currency?",
+            label: 'Which one is not a crypto currency?',
             answers: {
               create: [
-                { label: "Bitcoin" },
-                { label: "USDT" },
+                { label: 'Bitcoin' },
+                { label: 'USDT' },
                 {
-                    label: "USD",
+                    label: 'USD',
                     status: true
                 },
                 {
-                  label: "None of the above."
+                  label: 'None of the above.'
                 }
               ]
             }
         }
     });
-    console.log("Created New Questions: ", sampleQuestion);
+    console.log('Created New Questions: ', sampleQuestion);
 
     const allQuestions = await prisma.question.findMany({
         include: { answers: true}
     });
 
-    console.log("All Questions: ");
+    console.log('All Questions: ');
 
     console.dir(allQuestions, { depth: null });
 
