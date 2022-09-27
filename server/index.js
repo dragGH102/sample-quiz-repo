@@ -6,7 +6,7 @@ const { PrismaClient } = require('@prisma/client');
 const { prismaFindUniqueQueryOrThrow } = require('./utils/prisma-query-or-throw.js');
 const { PrismaClientKnownRequestError } = require('@prisma/client/runtime/index.js');
 
-const { login, refresh, logout } = require('./handlers.js');
+const { login, refresh, logout, jwtKey, expired } = require('./handlers.js');
 
 const prisma = new PrismaClient({log: ['query']});
 
@@ -27,6 +27,8 @@ app.use(cookieParser());
 /*
  * Init routes
  */
+
+app.post('/expired', expired);
 app.post('/login', login);
 app.post('/refresh', refresh);
 app.post('/logout', logout);
@@ -99,26 +101,22 @@ app.post('/add/question', async (req, res) => {
 
 app.post('/add/answer', async (req, res) => {
 	const { label, status, question_id } = req.body;
-	const Answer = await prisma.answer.create({
-		data: {
-			label: label,
-			status: status,
-			question_id: question_id
-		}
-	});
-	res.json(Answer);
+	try{
+		const Answer = await prisma.answer.create({
+			data: {
+				label: label,
+				status: status,
+				question_id: question_id
+			}
+		});
+		res.json(Answer);
+	}catch(err){
+		console.log(err);
+		res.status(400).end();
+	}
+	
 });
-/*
- * TODO: To fix AddQuestions route this not working properly createMany()
- */
-app.post('/add/questions', async (req, res) => {
-	const { label } = req.body;
-	const Question = await prisma.answer.createMany({
-		data: { label } // = data: { label: label }
-	});
-	res.json(Question);
-	console.log('anss---------', Question);
-});
+
 /*
  * TODO: To fix AddAnswers route this not working properly createMany()
  */
@@ -139,9 +137,18 @@ app.post('/add/answers', async (req, res) => {
  * Get routes
  */
 app.get('/questionsWithAnswers', async (req, res) => {
+	const token = req.cookies.token;
+
+	if(!token){
+		res.json({message: "Not authorized"});
+		res.status(401).end();
+		return;
+	}
+
 	const Question = await prisma.question.findMany({
 		include: { answers: true }
 	});
+
 	res.json(Question);
   
 	console.log('All Questions with answers', Question);

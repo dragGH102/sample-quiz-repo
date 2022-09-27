@@ -23,7 +23,7 @@ export const Helpers = ({ questions, setResult }: {
             for (let i = 0; i < question.answers.length; i++) {
 
                 if (count === numberOfAnswersToRemove) { break; }
-                if (!question.answers[i].correct) {
+                if (!question.answers[i].status) {
                     question.answers[i].remove = true;
                     count++;
                 }

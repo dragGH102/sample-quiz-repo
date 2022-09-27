@@ -55,5 +55,5 @@
     "tslint-react": "^5.0.0",
     "typescript": "^4.8.2"
   },
-  "proxy": "http://localhost:3001"
+  "proxy": "http://127.0.0.1:3001"
 }

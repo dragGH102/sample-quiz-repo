@@ -1,6 +1,6 @@
 export const UserDataView = ({ username }: { username: string }) => (
     <div>
-        { username }
+        User: {username}
     </div>
 )
 
@@ -13,6 +13,6 @@ export const UserDataController = () => {
     //     username={ username_from_context }
 }
 
-export const UserData = UserDataController;
+export const UserData = UserDataView;
 
 

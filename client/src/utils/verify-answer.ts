@@ -3,14 +3,14 @@ import { QuestionType } from "../types";
 export const selectAnswer = (id: number, questionId: number, setResult: Function) => {
     // todo #later: replace this with a reducer
     setResult((prevResult: any[]) => {
-       if(prevResult.find(res => res.answerId === id)) return prevResult;
-       
-       let result;
+        if (prevResult.find(res => res.answerId === id)) return prevResult;
 
-       result = prevResult.filter((res) => res.questionId !== questionId);
-       result = [...result, {questionId: questionId, answerId: id, isCorrect: null}]
+        let result;
 
-       return result;      
+        result = prevResult.filter((res) => res.questionId !== questionId);
+        result = [...result, { questionId: questionId, answerId: id, isCorrect: null }]
+
+        return result;
     });
 }
 export const verifyAnswers = (
@@ -22,7 +22,7 @@ export const verifyAnswers = (
         return prevResult.map((value) => {
             const question = questions.find(question => question.id === value.questionId);
 
-            const answer = question?.answers.find(answer => !!answer.correct);
+            const answer = question?.answers.find(answer => !!answer.status);
 
             const correct = answer?.id === value.answerId;
 
