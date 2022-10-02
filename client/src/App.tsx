@@ -8,6 +8,29 @@ import { verifyAnswers } from './utils/verify-answer';
 import { Helpers } from './components/Helpers';
 import { QuestionType } from './types';
 import AddQuestion from './components/AddQuestion';
+import { UserData } from './components/UserData';
+
+let options = {
+   credentials: 'include',
+   headers: {
+      "Content-Type": "application/json"
+   },
+} as unknown as RequestInit;
+
+// @ts-ignore
+const Results = ({ userLogged, loginData, score, setScore }): any => {
+
+   if (score.message) {
+      return (<div></div>);
+   }
+
+   return score.map((value: any) => (
+      <div>
+         CreatedAt: {value.createdAt}     Tot.questions: {value.totQuestions}    Score: {value.score}
+      </div>
+   ));
+
+}
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -23,11 +46,6 @@ const QuestionList = ({ questions, result, setResult, endGame }): any => questio
    </div>
 ));
 
-const credentials = {
-   username: '',
-   password: ''
-};
-
 const App = () => {
    const [result, setResult] = useState([]);
    const [endGame, setEndGame] = useState(false);
@@ -37,9 +55,33 @@ const App = () => {
    const [loaded, setLoaded] = useState(false);
    const [error, setError] = useState<string | null>(null);
    const [userLogged, setUserLogged] = useState(false);
-   const [loginData, setLoginData] = useState(credentials);
+   const [loginData, setLoginData] = useState({ username: '', password: '' });
+   const [score, setScore] = useState([]);
+
+
+
 
    console.log('App-render');
+
+   const getResultsByUser = async (username: string) => {
+      return await fetch('/results', options);
+   }
+
+   const setResults = async () => {
+      let results;
+      if (userLogged) {
+         results = await (await getResultsByUser(loginData.username)).json();
+      }
+      setScore(results);
+   }
+
+   useEffect(() => {
+      setResults();
+   }, [userLogged]);
+
+
+
+
 
    useEffect(() => {
       // todo use this component structure to CREATE a question with multiple answers provided via inputs
@@ -49,20 +91,23 @@ const App = () => {
       // Ideally use router to put this 'create question' as a separate page 
       // https://reactrouter.com/docs/en/v6/getting-started/tutorial
 
-      const baseUrl = 'http://127.0.0.1:3001';
+      const token = localStorage.getItem('token');
 
 
-      const fetchData = async (route: string) => {
-         const res = await fetch(`${baseUrl}/${route}`);
 
-         const resJson = await res.json();
+      //check token expiration by calling /expired api
+      const isTokenExpired = async () => {
+         return await fetch('/expired', { ...options, method: 'POST', body: JSON.stringify({ token: token }) }).then(res => res.json());
+      };
 
-         return resJson;
+      const initApp = async () => {
+         const { isExpired } = await isTokenExpired();
+         setUserLogged(!isExpired);
       }
 
       const getQuestions = async () => {
          try {
-            const data = await fetchData('questionsWithAnswers');
+            const data = await makeApiRequest('questionsWithAnswers');
 
             setQuestions(data);
 
@@ -75,7 +120,7 @@ const App = () => {
 
       const getUserData = async () => {
          try {
-            const data = await fetchData('user/mock');
+            const data = await makeApiRequest('user/mock');
 
             setUserData(data);
 
@@ -92,10 +137,10 @@ const App = () => {
 
       const getAllData = async () => {
          try {
-            const questions = await getQuestions();
+            const questions = getQuestions();
             if (!questions) return setError('failed getting questions');
 
-            const userData = await getUserData();
+            const userData = getUserData();
             if (!userData) return setError('failed getting user data');
 
             setLoaded(true);
@@ -105,16 +150,71 @@ const App = () => {
          }
       }
 
+      initApp()
       getAllData()
+
+
    }, []);
 
+   const getJsonData = async (promise: Promise<any>) => {
+      return (await promise).json();
+   }
 
+   /**
+    * Make an API Call to backend. If the token is expired,
+    * call refresh api.
+    * @param route 
+    * @param httpMethod 
+    * @returns {Promise<any>}
+    */
+   const makeApiRequest = async (route: string, httpMethod?: string, body?: any) => {
+
+      const token = JSON.stringify({ token: localStorage.getItem("token") });
+
+      const tokenApiOptions = { ...options, method: 'POST', body: token };
+
+      let apiOptions = { ...options };
+
+      if (httpMethod) {
+         apiOptions = { ...options, method: httpMethod };
+      }
+
+      if (body) {
+         apiOptions = { ...apiOptions, body: body };
+      }
+
+      //check if token is expired
+      const result: any = await getJsonData(fetch('/expired', tokenApiOptions));
+
+      if (result.isExpired) {
+         //make refresh
+
+         const response = await getJsonData(fetch('/refresh', tokenApiOptions));
+
+         const { token: newToken } = response;
+
+         if (newToken) {
+            //updates localstorage with new token
+            localStorage.setItem("token", newToken);
+         }
+      }
+
+      const response = fetch(`/${route}`, apiOptions).then(res => res.json());
+
+      return response;
+   }
+
+   const saveResult = async (questions: any[], result: any) => {
+      const data = JSON.stringify({ username: loginData.username, totQuestions: questions.length, score: result.filter((ans: { isCorrect: any; }) => ans.isCorrect).length });
+      await makeApiRequest('result', 'POST', data);
+   }
 
    const handleOperation = () => {
       setError(null);
 
       if (!endGame) {
          verifyAnswers(questions, setResult, setEndGame);
+         saveResult(questions, result);
       } else {
          setResult([]);
          setEndGame(false);
@@ -132,60 +232,29 @@ const App = () => {
 
       evt.preventDefault();
 
-      const options = {
-         method: 'POST',
-         headers: {
-            "Content-Type": "application/json"
-         },
-         body: JSON.stringify(loginData)
-      };
+      const { token } = await (await fetch(`/login`, { ...options, method: 'POST', body: JSON.stringify(loginData) })).json();
 
-      const response = await fetch(`/login`, options);
+      if (token) {
 
-      if (response.status === 401) {
-         return;
-      } else {
+
          setUserLogged(true);
+
+
+         localStorage.setItem('token', token);
       }
-   };
-
-   //For testing authentication
-   const testQuestions = async () => {
-      const questions = await fetch('http://localhost:3001/questionsWithAnswers');
-      console.log(await questions.json());
-   };
-
-   const refreshToken = async () => {
-      const options = {
-         method: 'POST',
-         headers: {
-            "Content-Type": "application/json"
-         },
-      } as unknown as RequestInit;
-
-      const refresh = await fetch('/refresh', options);
-      await refresh.json();
    };
 
    const logout = async () => {
 
-      const options = {
-         method: 'POST',
-         headers: {
-            "Content-Type": "application/json"
-         },
-         body: JSON.stringify(loginData)
-      };
+      const response = await fetch(`/logout`, { ...options, method: 'POST', body: JSON.stringify(loginData) });
 
-      const response = await fetch(`/logout`, options);
-
-      if (response.status === 401) {
-         return;
-      } else {
+      if (response.ok) {
+         localStorage.clear();
          setUserLogged(false);
       }
-
    };
+
+
 
    return (
       <div className="App">
@@ -193,7 +262,6 @@ const App = () => {
             !userLogged &&
             <div>
                {
-                  /* TODO make a form with username and password */
                   <form onSubmit={(e) => login(e)}>
                      <input type="text" name="username" placeholder='username' value={loginData.username} onChange={updateLoginData} />
                      <br />
@@ -207,20 +275,26 @@ const App = () => {
          }
 
          {
-            /* <UserData /> */
 
-            /* TODO here 'add question' component */
             userLogged &&
             <div>
+               {
+                  score &&
+                  <UserData username={loginData.username} />
+               }
+
+               <br />
+               <Results userLogged={userLogged} loginData={loginData} score={score} setScore={setScore} />
+
                <div style={{ display: 'flex', width: '200px', justifyContent: 'space-between' }}>
                   <Helpers
                      questions={questions}
                      setResult={setResult}
                   />
                   <button type="button" onClick={logout}>Logout</button>
-                  <button type="button" onClick={testQuestions}>Get Questions</button>
-                  <button type="button" onClick={refreshToken}>Refresh token</button>
                </div>
+
+               <AddQuestion />
 
                <QuestionList
                   questions={questions}
@@ -249,10 +323,6 @@ const App = () => {
 
          {error && <div>{error}</div>}
 
-         <div>State: {loaded ? 'loaded' : 'not loaded'} [todo replace this with a spinner] </div>
-
-         {error && <div>{error}</div>}
-         <AddQuestion />
       </div>
    );
 }

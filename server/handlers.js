@@ -4,7 +4,11 @@ const { prismaFindUniqueQueryOrThrow } = require('./utils/prisma-query-or-throw.
 
 const jwtKey = 'my_secret_key';
 
-const jwtExpirySeconds = 300;
+const jwtExpirySeconds = 10;
+
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient({log: ['query']});
 
 
 const login = async (req, res) => {
@@ -35,29 +39,21 @@ const login = async (req, res) => {
  
      // set the cookie as the token string, with a similar max age as the token
      // here, the max age is in milliseconds, so we multiply by 1000
-	res.cookie('token', token, { maxAge: jwtExpirySeconds * 1000 });
+	res.cookie('token', token, { httpOnly: true, sameSite: 'None', secure: true, maxAge: jwtExpirySeconds * 1000 }); 
 
-	res.end();
+	res.json({token: token}).end();
+
 };
 
-const refresh = (req, res) => {
-	const token = req.cookies.token;
-	console.log(req.cookies);
+const refresh = async (req, res) => {
+	console.log(req.body);
+	const {token} = req.body;
 
 	if (!token) {
 		return res.status(401).end();
 	}
 
-	var payload;
-	try {
-		payload = jwt.verify(token, jwtKey);
-		console.log(payload);
-	} catch (e) {
-		if (e instanceof jwt.JsonWebTokenError) {
-			return res.status(401).end();
-		}
-		return res.status(400).end();
-	}
+	var payload = jwt.decode(token);
 	// (END) The code uptil this point is the same as the first part of the `welcome` route
 
 	// We ensure that a new token is not issued until enough time has elapsed
@@ -76,23 +72,91 @@ const refresh = (req, res) => {
 
 	// Set the new token as the users `token` cookie
 	res.cookie('token', newToken, { maxAge: jwtExpirySeconds * 1000 });
+	res.json({token: newToken}).end();
 	res.end();
+
 };
 
 const logout = async (req, res) => {
     const token = req.cookies.token;
 
-	if (!token) {
-		return res.status(401).end();
+	if(token){
+		res.clearCookie('token');
+	}
+	
+    res.end();
+};
+
+const expired = (req, res) => {
+	const {token} = req.body;
+	let expired = false;
+
+	if(!token){
+		res.json({isExpired: true});
+		return;
 	}
 
-    res.clearCookie('token');
-    res.end();
+	try{
+		jwt.verify(token, jwtKey);
+	}catch(err){
+		if (err instanceof jwt.TokenExpiredError) {
+			expired = true;
+		}
+	}
+
+	res.json({isExpired: expired});
+	res.end();
+};
+
+const saveResult = async (req,res) => {
+   const { username, totQuestions, score } = req.body;
+
+   const token = req.cookies.token;
+
+	if(!token){
+		res.json({message: "Not authorized"});
+		res.status(401).end();
+		return;
+	}
+
+   try{
+      const result = await prisma.result.create({
+		data: {
+			username,
+			totQuestions,
+			score
+		}
+    });
+
+	res.json(result);
+
+   }catch(err){
+      res.json(err);
+   }
+};
+
+const getResults = async (req,res) => {
+	const { username } = req.params;
+
+	const token = req.cookies.token;
+
+	if(!token){
+		res.json({message: "Not authorized"});
+		res.status(401).end();
+		return;
+	}
+	
+	const results = await prisma.result.findMany({ where: { username}});
+
+	res.json(results);
 };
 
 module.exports = {
     login,
     refresh,
     logout,
+	expired,
+	saveResult,
+	getResults,
 	jwtKey
 };

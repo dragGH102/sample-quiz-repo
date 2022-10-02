@@ -5,7 +5,7 @@ export type QuestionType = {
 
     answers: Array<{
         remove?: boolean;
-        correct?: boolean;
+        status?: boolean;
         label: string;
         id: number;
     }>
