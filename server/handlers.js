@@ -6,6 +6,10 @@ const jwtKey = 'my_secret_key';
 
 const jwtExpirySeconds = 10;
 
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient({log: ['query']});
+
 
 const login = async (req, res) => {
 	// Get credentials from JSON body
@@ -104,10 +108,55 @@ const expired = (req, res) => {
 	res.end();
 };
 
+const saveResult = async (req,res) => {
+   const { username, totQuestions, score } = req.body;
+
+   const token = req.cookies.token;
+
+	if(!token){
+		res.json({message: "Not authorized"});
+		res.status(401).end();
+		return;
+	}
+
+   try{
+      const result = await prisma.result.create({
+		data: {
+			username,
+			totQuestions,
+			score
+		}
+    });
+
+	res.json(result);
+
+   }catch(err){
+      res.json(err);
+   }
+};
+
+const getResults = async (req,res) => {
+	const { username } = req.params;
+
+	const token = req.cookies.token;
+
+	if(!token){
+		res.json({message: "Not authorized"});
+		res.status(401).end();
+		return;
+	}
+	
+	const results = await prisma.result.findMany({ where: { username}});
+
+	res.json(results);
+};
+
 module.exports = {
     login,
     refresh,
     logout,
 	expired,
+	saveResult,
+	getResults,
 	jwtKey
 };

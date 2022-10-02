@@ -6,7 +6,7 @@ const { PrismaClient } = require('@prisma/client');
 const { prismaFindUniqueQueryOrThrow } = require('./utils/prisma-query-or-throw.js');
 const { PrismaClientKnownRequestError } = require('@prisma/client/runtime/index.js');
 
-const { login, refresh, logout, jwtKey, expired } = require('./handlers.js');
+const { login, refresh, logout, jwtKey, expired, saveResult, getResults } = require('./handlers.js');
 
 const prisma = new PrismaClient({log: ['query']});
 
@@ -32,6 +32,8 @@ app.post('/expired', expired);
 app.post('/login', login);
 app.post('/refresh', refresh);
 app.post('/logout', logout);
+app.post('/result', saveResult);
+app.get('/results', getResults);
 
 /*
  * Post routes

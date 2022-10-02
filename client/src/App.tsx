@@ -10,6 +10,28 @@ import { QuestionType } from './types';
 import AddQuestion from './components/AddQuestion';
 import { UserData } from './components/UserData';
 
+let options = {
+   credentials: 'include',
+   headers: {
+      "Content-Type": "application/json"
+   },
+} as unknown as RequestInit;
+
+// @ts-ignore
+const Results = ({ userLogged, loginData, score, setScore }): any => {
+
+   if (score.message) {
+      return (<div></div>);
+   }
+
+   return score.map((value: any) => (
+      <div>
+         CreatedAt: {value.createdAt}     Tot.questions: {value.totQuestions}    Score: {value.score}
+      </div>
+   ));
+
+}
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const QuestionList = ({ questions, result, setResult, endGame }): any => questions.map((question: QuestionType) => (
@@ -34,15 +56,32 @@ const App = () => {
    const [error, setError] = useState<string | null>(null);
    const [userLogged, setUserLogged] = useState(false);
    const [loginData, setLoginData] = useState({ username: '', password: '' });
+   const [score, setScore] = useState([]);
 
-   let options = {
-      credentials: 'include',
-      headers: {
-         "Content-Type": "application/json"
-      },
-   } as unknown as RequestInit;
+
+
 
    console.log('App-render');
+
+   const getResultsByUser = async (username: string) => {
+      return await fetch('/results', options);
+   }
+
+   const setResults = async () => {
+      let results;
+      if (userLogged) {
+         results = await (await getResultsByUser(loginData.username)).json();
+      }
+      setScore(results);
+   }
+
+   useEffect(() => {
+      setResults();
+   }, [userLogged]);
+
+
+
+
 
    useEffect(() => {
       // todo use this component structure to CREATE a question with multiple answers provided via inputs
@@ -53,6 +92,8 @@ const App = () => {
       // https://reactrouter.com/docs/en/v6/getting-started/tutorial
 
       const token = localStorage.getItem('token');
+
+
 
       //check token expiration by calling /expired api
       const isTokenExpired = async () => {
@@ -126,7 +167,7 @@ const App = () => {
     * @param httpMethod 
     * @returns {Promise<any>}
     */
-   const makeApiRequest = async (route: string, httpMethod?: string) => {
+   const makeApiRequest = async (route: string, httpMethod?: string, body?: any) => {
 
       const token = JSON.stringify({ token: localStorage.getItem("token") });
 
@@ -136,6 +177,10 @@ const App = () => {
 
       if (httpMethod) {
          apiOptions = { ...options, method: httpMethod };
+      }
+
+      if (body) {
+         apiOptions = { ...apiOptions, body: body };
       }
 
       //check if token is expired
@@ -159,11 +204,17 @@ const App = () => {
       return response;
    }
 
+   const saveResult = async (questions: any[], result: any) => {
+      const data = JSON.stringify({ username: loginData.username, totQuestions: questions.length, score: result.filter((ans: { isCorrect: any; }) => ans.isCorrect).length });
+      await makeApiRequest('result', 'POST', data);
+   }
+
    const handleOperation = () => {
       setError(null);
 
       if (!endGame) {
          verifyAnswers(questions, setResult, setEndGame);
+         saveResult(questions, result);
       } else {
          setResult([]);
          setEndGame(false);
@@ -184,7 +235,11 @@ const App = () => {
       const { token } = await (await fetch(`/login`, { ...options, method: 'POST', body: JSON.stringify(loginData) })).json();
 
       if (token) {
+
+
          setUserLogged(true);
+
+
          localStorage.setItem('token', token);
       }
    };
@@ -198,6 +253,8 @@ const App = () => {
          setUserLogged(false);
       }
    };
+
+
 
    return (
       <div className="App">
@@ -218,10 +275,17 @@ const App = () => {
          }
 
          {
+
             userLogged &&
             <div>
-               <UserData username={loginData.username} />
+               {
+                  score &&
+                  <UserData username={loginData.username} />
+               }
+
                <br />
+               <Results userLogged={userLogged} loginData={loginData} score={score} setScore={setScore} />
+
                <div style={{ display: 'flex', width: '200px', justifyContent: 'space-between' }}>
                   <Helpers
                      questions={questions}
